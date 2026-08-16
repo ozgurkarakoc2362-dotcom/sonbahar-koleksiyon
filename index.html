@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATELIER NORD — Sonbahar Koleksiyonu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Üst bar -->
+  <header class="site-header">
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Menüyü aç" aria-expanded="false">
+      <span class="menu-toggle__box">
+        <span></span><span></span><span></span>
+      </span>
+      <span class="menu-toggle__label">Menü</span>
+    </button>
+
+    <a href="index.html" class="brand" aria-label="Atelier Nord ana sayfa">
+      <span class="brand__mark">AN</span>
+      <span class="brand__name">Atelier Nord</span>
+    </a>
+
+    <div class="header-actions">
+      <button type="button" class="icon-btn" id="searchBtn" aria-label="Ara">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      </button>
+      <button type="button" class="icon-btn cart-btn" id="cartToggle" aria-label="Sepet">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/><path d="M6 6L5 3H2"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sol menü paneli -->
+  <aside class="side-menu" id="sideMenu" aria-hidden="true">
+    <div class="side-menu__inner">
+      <div class="side-menu__head">
+        <p class="side-menu__eyebrow">Kategoriler</p>
+        <button type="button" class="side-menu__close" id="menuClose" aria-label="Menüyü kapat">×</button>
+      </div>
+      <nav class="side-menu__nav">
+        <a href="#urunler" data-category="all" class="cat-link is-active">Tümü</a>
+        <a href="#urunler" data-category="tisort" class="cat-link">Tişört</a>
+        <a href="#urunler" data-category="pantolon" class="cat-link">Pantolon</a>
+        <a href="#urunler" data-category="forma" class="cat-link">Forma</a>
+        <a href="#urunler" data-category="ayakkabi" class="cat-link">Ayakkabı</a>
+        <a href="#urunler" data-category="aksesuar" class="cat-link">Aksesuar</a>
+        <a href="#urunler" data-category="corap" class="cat-link">Çorap</a>
+      </nav>
+      <div class="side-menu__foot">
+        <p>Kampanya: sepete <strong>çorap</strong> ekleyince tüm alışverişte <strong>%10</strong> indirim.</p>
+      </div>
+    </div>
+  </aside>
+  <div class="menu-backdrop" id="menuBackdrop"></div>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="hero__veil" aria-hidden="true"></div>
+    <div class="hero__content">
+      <p class="hero__season">2026 · Güz</p>
+      <h1 class="hero__title">
+        <span class="hero__title-line">Sonbahar</span>
+        <span class="hero__title-line hero__title-line--accent">Koleksiyonu</span>
+      </h1>
+      <p class="hero__lead">Kahverengi toprak tonları, derin mavi ve yumuşak dokular. Günlük parçalar, dikkatle seçilmiş formalar.</p>
+      <div class="hero__cta">
+        <a href="#urunler" class="btn btn--primary">Koleksiyonu Keşfet</a>
+        <a href="#hakkimizda" class="btn btn--ghost">Hikayemiz</a>
+      </div>
+    </div>
+    <div class="hero__scroll" aria-hidden="true">
+      <span>Aşağı kaydır</span>
+    </div>
+  </section>
+
+  <!-- Vitrin şeridi -->
+  <section class="strip" aria-label="Öne çıkanlar">
+    <div class="strip__track">
+      <span>Yün karışım tişörtler</span>
+      <span>·</span>
+      <span>Derin indigo denim</span>
+      <span>·</span>
+      <span>Maç günü formaları</span>
+      <span>·</span>
+      <span>El yapımı aksesuar</span>
+      <span>·</span>
+      <span>Yün karışım tişörtler</span>
+      <span>·</span>
+      <span>Derin indigo denim</span>
+      <span>·</span>
+      <span>Maç günü formaları</span>
+      <span>·</span>
+      <span>El yapımı aksesuar</span>
+    </div>
+  </section>
+
+  <!-- Ürünler -->
+  <section class="products" id="urunler">
+    <div class="section-head">
+      <h2 class="section-title">Ürünler</h2>
+      <p class="section-sub" id="categoryLabel">Tüm koleksiyon</p>
+    </div>
+    <div class="product-grid" id="productGrid">
+      <!-- JS ile doldurulur — ürün verileri js/products.js -->
+    </div>
+  </section>
+
+  <!-- Hakkımızda -->
+  <section class="about" id="hakkimizda">
+    <div class="about__text">
+      <p class="eyebrow">Atelier Nord</p>
+      <h2 class="section-title">Sakin bir gardırop</h2>
+      <p>İstanbul’dan çıkan, sınırlı üretim parçalar. Fotoğrafları kendi stüdyomuzda çekiyoruz; her ürünün kumaş, kesim ve bakım bilgisini ayrıntılı yazıyoruz.</p>
+      <p>Ödemeler <strong>iyzico</strong> altyapısı ile güvenli şekilde alınır. Sepetinizi onayladıktan sonra kart bilgileriniz iyzico ödeme sayfasında işlenir.</p>
+    </div>
+    <div class="about__visual" aria-hidden="true"></div>
+  </section>
+
+  <!-- Ödeme / Checkout -->
+  <section class="checkout-section" id="odeme">
+    <div class="section-head">
+      <h2 class="section-title">Ödeme</h2>
+      <p class="section-sub">iyzico ile güvenli ödeme · fiyatları <code>js/products.js</code> dosyasından düzenleyebilirsiniz</p>
+    </div>
+    <form class="checkout-form" id="checkoutForm">
+      <div class="checkout-form__grid">
+        <label>
+          Ad Soyad
+          <input type="text" name="name" required placeholder="Adınız Soyadınız" />
+        </label>
+        <label>
+          E-posta
+          <input type="email" name="email" required placeholder="ornek@mail.com" />
+        </label>
+        <label>
+          Telefon
+          <input type="tel" name="phone" required placeholder="05xx xxx xx xx" />
+        </label>
+        <label>
+          Şehir
+          <input type="text" name="city" required placeholder="İstanbul" />
+        </label>
+        <label class="full">
+          Adres
+          <textarea name="address" rows="3" required placeholder="Mahalle, sokak, bina no..."></textarea>
+        </label>
+      </div>
+      <div class="checkout-summary" id="checkoutSummary">
+        <p>Sepetiniz boş. Ürün ekleyip buradan ödeme yapabilirsiniz.</p>
+      </div>
+      <button type="submit" class="btn btn--primary btn--wide" id="payBtn" disabled>
+        iyzico ile Güvenli Öde
+      </button>
+      <p class="checkout-note">Canlı ödemeyi açmak için <code>js/iyzico-config.js</code> içindeki anahtarları doldurun. Demo modda sipariş özeti gösterilir.</p>
+    </form>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer__brand">
+      <span class="brand__mark">AN</span>
+      <span>Atelier Nord © 2026</span>
+    </div>
+    <p>Ödeme altyapısı: iyzico · Kendi ürünlerinizi <code>js/products.js</code> ile yönetin</p>
+  </footer>
+
+  <!-- Sepet paneli -->
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="cart-drawer__head">
+      <h2>Sepet</h2>
+      <button type="button" class="side-menu__close" id="cartClose" aria-label="Sepeti kapat">×</button>
+    </div>
+    <div class="cart-drawer__body" id="cartItems"></div>
+    <div class="cart-drawer__foot">
+      <div class="cart-totals" id="cartTotals"></div>
+      <a href="#odeme" class="btn btn--primary btn--wide" id="goCheckout">Ödemeye Geç</a>
+    </div>
+  </aside>
+  <div class="cart-backdrop" id="cartBackdrop"></div>
+
+  <!-- Arama -->
+  <dialog class="search-modal" id="searchModal">
+    <div class="search-modal__inner">
+      <button type="button" class="search-modal__close" id="searchClose" aria-label="Aramayı kapat">×</button>
+      <label class="search-modal__label" for="searchInput">Ürün ara</label>
+      <input type="search" id="searchInput" class="search-modal__input" placeholder="Tişört, forma, çorap..." autocomplete="off" />
+      <div class="search-modal__results" id="searchResults"></div>
+    </div>
+  </dialog>
+
+  <!-- Ürün detay modal -->
+  <dialog class="product-modal" id="productModal">
+    <button type="button" class="product-modal__close" id="modalClose" aria-label="Kapat">×</button>
+    <div class="product-modal__body" id="productModalBody"></div>
+  </dialog>
+
+  <script src="js/products.js"></script>
+  <script src="js/iyzico-config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

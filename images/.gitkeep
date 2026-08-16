@@ -1,0 +1,4 @@
+# Bu klasöre kendi ürün fotoğraflarınızı koyun.
+# Örnek: images/forma-home.jpg
+# Sonra js/products.js içinde image alanını güncelleyin:
+#   image: "images/forma-home.jpg"

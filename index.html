@@ -7,9 +7,58 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=wheel2" />
+  <style>
+    body.wheel-lock { overflow: hidden; }
+    #wheelOverlay {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 99999 !important;
+      display: grid !important;
+      place-items: center !important;
+      padding: 16px !important;
+      background: rgba(20, 4, 4, 0.9) !important;
+    }
+    #wheelOverlay.is-hidden { display: none !important; }
+    .wheel-modal { width: min(92vw, 640px); text-align: center; color: #fff8f6; }
+    .wheel-eyebrow { margin: 0; font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase; color: #ffb4b0; }
+    .wheel-title { margin: 6px 0 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(36px, 8vw, 64px); font-weight: 600; color: #fff; line-height: 1; }
+    .wheel-lead { margin: 10px 0 20px; color: rgba(255,248,246,.8); }
+    .wheel-stage { position: relative; width: min(86vw, 520px); height: min(86vw, 520px); margin: 0 auto; }
+    .wheel-pointer { position: absolute; top: -8px; left: 50%; z-index: 4; width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 34px solid #fff; transform: translateX(-50%); }
+    #wheel {
+      width: 100%; height: 100%; border-radius: 50%; position: relative;
+      border: 10px solid #7a0b0b;
+      box-shadow: 0 0 0 8px #d32f2f, 0 0 0 14px #4a0505, 0 28px 50px rgba(0,0,0,.45);
+      background: conic-gradient(#c62828 0deg 45deg, #8b0000 45deg 90deg, #e53935 90deg 135deg, #6d0b0b 135deg 180deg, #d32f2f 180deg 225deg, #9b1111 225deg 270deg, #ff1744 270deg 315deg, #7f1010 315deg 360deg);
+    }
+    .wheel-label { position: absolute; inset: 0; display: flex; justify-content: center; padding-top: 11%; pointer-events: none; }
+    .wheel-label b { font-size: clamp(14px, 3vw, 20px); color: #fff; text-shadow: 0 2px 4px #000; }
+    #wheelSpin {
+      position: absolute; top: 50%; left: 50%; z-index: 5; width: 92px; height: 92px; margin: -46px 0 0 -46px;
+      border: 5px solid #fff; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff5c5c, #b71c1c 55%, #6a0909);
+      color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 0.14em; cursor: pointer;
+    }
+    .wheel-result { min-height: 24px; margin: 16px 0 12px; font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; color: #ffe082; font-weight: 600; }
+    .wheel-continue { background: #fff !important; color: #7a0b0b !important; border-color: #fff !important; }
+  </style>
 </head>
 <body>
+  <div id="wheelOverlay" class="wheel-overlay" role="dialog" aria-modal="true" aria-labelledby="wheelTitle">
+    <div class="wheel-modal">
+      <p class="wheel-eyebrow">Hoş geldin</p>
+      <h2 class="wheel-title" id="wheelTitle">Şans Çarkı</h2>
+      <p class="wheel-lead">Çevir, indirimini kap — yüzde veya tutar hediyesi</p>
+      <div class="wheel-stage">
+        <div class="wheel-pointer" aria-hidden="true"></div>
+        <div id="wheel"></div>
+        <button type="button" id="wheelSpin">ÇEVİR</button>
+      </div>
+      <p class="wheel-result" id="wheelResult"></p>
+      <button type="button" class="btn btn--primary wheel-continue" id="wheelContinue">Siteye geç</button>
+    </div>
+  </div>
+
   <!-- Üst bar -->
   <header class="site-header">
     <button type="button" class="menu-toggle" id="menuToggle" aria-label="Menüyü aç" aria-expanded="false">
@@ -203,5 +252,62 @@
   <script src="js/iyzico-config.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    (function () {
+      var slices = [
+        { label: "%5", type: "percent", value: 5, text: "Çark: %5 indirim" },
+        { label: "50 TL", type: "amount", value: 50, text: "Çark: 50 TL indirim" },
+        { label: "%10", type: "percent", value: 10, text: "Çark: %10 indirim" },
+        { label: "100 TL", type: "amount", value: 100, text: "Çark: 100 TL indirim" },
+        { label: "%15", type: "percent", value: 15, text: "Çark: %15 indirim" },
+        { label: "150 TL", type: "amount", value: 150, text: "Çark: 150 TL indirim" },
+        { label: "%10", type: "percent", value: 10, text: "Çark: %10 indirim" },
+        { label: "50 TL", type: "amount", value: 50, text: "Çark: 50 TL indirim" }
+      ];
+      var overlay = document.getElementById("wheelOverlay");
+      var wheelEl = document.getElementById("wheel");
+      var spinBtn = document.getElementById("wheelSpin");
+      var resultEl = document.getElementById("wheelResult");
+      var continueBtn = document.getElementById("wheelContinue");
+      if (!overlay || !wheelEl || !spinBtn) return;
+
+      var sliceAngle = 360 / slices.length;
+      var spinning = false;
+      document.body.classList.add("wheel-lock");
+      overlay.classList.remove("is-hidden");
+
+      wheelEl.innerHTML = slices.map(function (slice, i) {
+        var rot = i * sliceAngle + sliceAngle / 2;
+        return '<span class="wheel-label" style="transform:rotate(' + rot + 'deg)"><b>' + slice.label + "</b></span>";
+      }).join("");
+
+      spinBtn.addEventListener("click", function () {
+        if (spinning) return;
+        spinning = true;
+        spinBtn.disabled = true;
+        resultEl.textContent = "";
+        var target = Math.floor(Math.random() * slices.length);
+        var extra = 5 + Math.floor(Math.random() * 3);
+        var next = extra * 360 + (360 - (target * sliceAngle + sliceAngle / 2));
+        wheelEl.style.transition = "transform 4.4s cubic-bezier(0.12, 0.7, 0.12, 1)";
+        wheelEl.style.transform = "rotate(" + next + "deg)";
+        setTimeout(function () {
+          var normalized = ((360 - (next % 360)) % 360 + 360) % 360;
+          var won = slices[Math.min(slices.length - 1, Math.floor(normalized / sliceAngle))];
+          if (window.Cart && typeof Cart.setWheelPrize === "function") {
+            Cart.setWheelPrize({ type: won.type, value: won.value, label: won.text });
+            window.dispatchEvent(new CustomEvent("cart:refresh"));
+          }
+          resultEl.textContent = "Tebrikler! " + won.label + " kazandın.";
+          spinning = false;
+        }, 4500);
+      });
+
+      continueBtn.addEventListener("click", function () {
+        overlay.classList.add("is-hidden");
+        document.body.classList.remove("wheel-lock");
+      });
+    })();
+  </script>
 </body>
 </html>

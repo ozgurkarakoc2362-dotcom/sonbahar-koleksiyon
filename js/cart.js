@@ -1,25 +1,35 @@
 /**
  * Sepet mantığı + çorap kampanyası (%10)
- * Ürün fiyatları products.js'den okunur; burada hesaplanır.
+ * Her sayfa açılışında sıfırlanır (eski sepet / çark kaydı tutulmaz).
  */
 
 const CART_STORAGE_KEY = "atelier_nord_cart_v1";
+const WHEEL_PRIZE_KEY = "atelier_nord_wheel_prize";
+
+try {
+  localStorage.removeItem(CART_STORAGE_KEY);
+  localStorage.removeItem(WHEEL_PRIZE_KEY);
+} catch {
+  /* tarayıcı depolaması kapalıysa geç */
+}
 
 const Cart = {
   items: [],
+  wheelPrize: null,
 
   load() {
+    this.items = [];
     try {
-      const raw = localStorage.getItem(CART_STORAGE_KEY);
-      this.items = raw ? JSON.parse(raw) : [];
+      localStorage.removeItem(CART_STORAGE_KEY);
+      localStorage.removeItem(WHEEL_PRIZE_KEY);
     } catch {
-      this.items = [];
+      /* ignore */
     }
     return this.items;
   },
 
   save() {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items));
+    /* Sayfa kapanınca unutulsun diye kaydetmiyoruz */
   },
 
   /**
@@ -82,15 +92,47 @@ const Cart = {
     return this.items.reduce((sum, i) => sum + i.priceAtAdd * i.qty, 0);
   },
 
+  getWheelPrize() {
+    if (this.wheelPrize) return this.wheelPrize;
+    return window.__wheelPrize || null;
+  },
+
+  setWheelPrize(prize) {
+    this.wheelPrize = prize || null;
+    window.__wheelPrize = this.wheelPrize;
+  },
+
   /** Çorap kampanyası aktif mi? */
   hasDiscountTrigger() {
     const cat = DISCOUNT_RULES.triggerCategory;
     return this.items.some((i) => i.category === cat && i.qty > 0);
   },
 
+  discountLines() {
+    const subtotal = this.subtotal();
+    const lines = [];
+    if (this.hasDiscountTrigger()) {
+      lines.push({
+        label: DISCOUNT_RULES.label,
+        amount: (subtotal * DISCOUNT_RULES.percent) / 100
+      });
+    }
+    const prize = this.getWheelPrize();
+    if (prize) {
+      const amount =
+        prize.type === "percent" ? (subtotal * prize.value) / 100 : prize.value;
+      lines.push({
+        label: prize.label || "Çark indirimi",
+        amount
+      });
+    }
+    return lines;
+  },
+
   discountAmount() {
-    if (!this.hasDiscountTrigger()) return 0;
-    return (this.subtotal() * DISCOUNT_RULES.percent) / 100;
+    const subtotal = this.subtotal();
+    const sum = this.discountLines().reduce((s, line) => s + line.amount, 0);
+    return Math.min(sum, subtotal);
   },
 
   total() {
@@ -99,16 +141,20 @@ const Cart = {
 
   summary() {
     const subtotal = this.subtotal();
+    const discounts = this.discountLines();
     const discount = this.discountAmount();
     const total = this.total();
+    const prize = this.getWheelPrize();
     return {
       items: this.items,
       subtotal,
       discount,
+      discounts,
       total,
-      discountActive: this.hasDiscountTrigger(),
-      discountLabel: DISCOUNT_RULES.label,
-      discountPercent: DISCOUNT_RULES.percent
+      discountActive: discount > 0,
+      discountLabel: discounts[0]?.label || DISCOUNT_RULES.label,
+      discountPercent: DISCOUNT_RULES.percent,
+      wheelPrize: prize
     };
   }
 };

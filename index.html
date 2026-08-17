@@ -7,19 +7,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=wheel3" />
+  <link rel="stylesheet" href="css/styles.css?v=wheel6" />
   <style>
     body.wheel-lock { overflow: hidden; }
     #wheelOverlay {
       position: fixed !important;
       inset: 0 !important;
       z-index: 2147483647 !important;
-      display: grid !important;
+      display: none !important;
       place-items: center !important;
       padding: 16px !important;
       background: rgba(20, 4, 4, 0.92) !important;
     }
-    #wheelOverlay.is-hidden { display: none !important; }
+    #wheelOverlay.is-open {
+      display: grid !important;
+    }
     .wheel-modal { width: min(92vw, 640px); text-align: center; color: #fff8f6; }
     .wheel-eyebrow { margin: 0; font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase; color: #ffb4b0; }
     .wheel-title { margin: 6px 0 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(36px, 8vw, 64px); font-weight: 600; color: #fff; line-height: 1; }
@@ -44,7 +46,7 @@
   </style>
 </head>
 <body>
-  <div id="wheelOverlay" class="wheel-overlay" style="position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:16px;background:rgba(20,4,4,.92);">
+  <div id="wheelOverlay" class="wheel-overlay" style="position:fixed;inset:0;z-index:2147483647;display:none;place-items:center;padding:16px;background:rgba(20,4,4,.92);">
     <div class="wheel-modal">
       <p class="wheel-eyebrow">Hoş geldin</p>
       <h2 class="wheel-title" id="wheelTitle">Şans Çarkı</h2>
@@ -66,8 +68,7 @@
       var resultEl = document.getElementById("wheelResult");
       var continueBtn = document.getElementById("wheelContinue");
       if (!overlay || !wheelEl || !spinBtn) return;
-      overlay.style.setProperty("display", "grid", "important");
-      document.body.className += " wheel-lock";
+      overlay.style.setProperty("display", "none", "important");
       var slices = [
         { label: "%5", type: "percent", value: 5, text: "Cark %5 indirim" },
         { label: "50 TL", type: "amount", value: 50, text: "Cark 50 TL indirim" },
@@ -90,7 +91,7 @@
         if (spinning) return;
         spinning = true;
         spinBtn.disabled = true;
-        resultEl.textContent = "";
+        resultEl.textContent = "Donuyor...";
         var target = Math.floor(Math.random() * slices.length);
         var extra = 5 + Math.floor(Math.random() * 3);
         var next = extra * 360 + (360 - (target * sliceAngle + sliceAngle / 2));
@@ -99,12 +100,18 @@
         setTimeout(function () {
           var normalized = ((360 - (next % 360)) % 360 + 360) % 360;
           var won = slices[Math.min(slices.length - 1, Math.floor(normalized / sliceAngle))];
+          var prize = { type: won.type, value: won.value, label: won.label };
+          window.__wheelPrize = prize;
           if (window.Cart && Cart.setWheelPrize) {
-            Cart.setWheelPrize({ type: won.type, value: won.value, label: won.text });
-            window.dispatchEvent(new Event("cart:refresh"));
+            Cart.setWheelPrize({
+              type: prize.type,
+              value: prize.value,
+              label: prize.type === "percent" ? ("Cark %" + prize.value + " indirim") : ("Cark " + prize.value + " TL indirim")
+            });
           }
-          resultEl.textContent = "Tebrikler! " + won.label + " kazandin!";
-          spinning = false;
+          window.dispatchEvent(new Event("cart:refresh"));
+          resultEl.textContent = "Tebrikler! " + won.label + " kazandin. Simdi urunlerde kullan.";
+          continueBtn.textContent = "Indirimi kullan";
         }, 4500);
       }
       spinBtn.onclick = spin;
@@ -112,10 +119,18 @@
         overlay.style.setProperty("display", "none", "important");
         document.body.className = document.body.className.replace("wheel-lock", "");
         document.body.style.overflow = "";
+        window.dispatchEvent(new Event("cart:refresh"));
       };
-      setTimeout(spin, 500);
+      setTimeout(function () {
+        overlay.style.setProperty("display", "grid", "important");
+        document.body.className += " wheel-lock";
+        document.body.style.overflow = "hidden";
+        resultEl.textContent = "CEVIR dugmesine bas, sonra doner.";
+      }, 5000);
     })();
   </script>
+
+  <div id="prizeBanner" class="prize-banner" hidden></div>
 
   <!-- Üst bar -->
   <header class="site-header">

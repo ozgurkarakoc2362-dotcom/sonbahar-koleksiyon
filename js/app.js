@@ -327,13 +327,18 @@
       )
       .join("");
 
+    const discountRows = summary.discounts?.length
+      ? summary.discounts
+          .map(
+            (d) =>
+              `<div class="row discount"><span>${d.label}</span><span>−${formatTRY(d.amount)}</span></div>`
+          )
+          .join("")
+      : `<div class="row"><span>İndirim</span><span style="color:var(--muted);font-size:0.85rem">Çorap ekleyince %${summary.discountPercent}</span></div>`;
+
     cartTotalsEl.innerHTML = `
       <div class="row"><span>Ara toplam</span><span>${formatTRY(summary.subtotal)}</span></div>
-      ${
-        summary.discountActive
-          ? `<div class="row discount"><span>${summary.discountLabel}</span><span>−${formatTRY(summary.discount)}</span></div>`
-          : `<div class="row"><span>İndirim</span><span style="color:var(--muted);font-size:0.85rem">Çorap ekleyince %${summary.discountPercent}</span></div>`
-      }
+      ${discountRows}
       <div class="row total"><span>Toplam</span><span>${formatTRY(summary.total)}</span></div>`;
   }
 
@@ -381,8 +386,13 @@
       ${lines}
       <div class="checkout-summary__row"><span>Ara toplam</span><span>${formatTRY(summary.subtotal)}</span></div>
       ${
-        summary.discountActive
-          ? `<div class="checkout-summary__row is-discount"><span>${summary.discountLabel}</span><span>−${formatTRY(summary.discount)}</span></div>`
+        summary.discounts?.length
+          ? summary.discounts
+              .map(
+                (d) =>
+                  `<div class="checkout-summary__row is-discount"><span>${d.label}</span><span>−${formatTRY(d.amount)}</span></div>`
+              )
+              .join("")
           : ""
       }
       <div class="checkout-summary__row is-total"><span>Ödenecek</span><span>${formatTRY(summary.total)}</span></div>`;
@@ -449,6 +459,7 @@
   }
 
   /* ---- Init ---- */
+  window.addEventListener("cart:refresh", updateCartUI);
   renderProducts();
   updateCartUI();
 })();

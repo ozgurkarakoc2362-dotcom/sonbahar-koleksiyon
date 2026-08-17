@@ -10,6 +10,24 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+  <!-- Şans çarkı — site açılınca ortada -->
+  <div class="wheel-overlay is-open" id="wheelOverlay" role="dialog" aria-modal="true" aria-labelledby="wheelTitle" style="position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(20,4,4,.88);padding:1rem;">
+    <div class="wheel-modal">
+      <p class="wheel-eyebrow">Hoş geldin</p>
+      <h2 class="wheel-title" id="wheelTitle">Şans Çarkı</h2>
+      <p class="wheel-lead">Çevir, indirimini kap — yüzde veya tutar hediyesi</p>
+
+      <div class="wheel-stage">
+        <div class="wheel-pointer" aria-hidden="true"></div>
+        <div class="wheel" id="wheel"></div>
+        <button type="button" class="wheel-hub" id="wheelSpin">ÇEVİR</button>
+      </div>
+
+      <p class="wheel-result" id="wheelResult"></p>
+      <button type="button" class="btn btn--primary wheel-continue" id="wheelContinue">Siteye geç</button>
+    </div>
+  </div>
+
   <!-- Üst bar -->
   <header class="site-header">
     <button type="button" class="menu-toggle" id="menuToggle" aria-label="Menüyü aç" aria-expanded="false">
@@ -202,6 +220,7 @@
   <script src="js/products.js"></script>
   <script src="js/iyzico-config.js"></script>
   <script src="js/cart.js"></script>
+  <script src="js/wheel.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

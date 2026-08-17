@@ -1194,14 +1194,14 @@ body.wheel-lock {
   position: fixed;
   inset: 0;
   z-index: 400;
-  display: none;
+  display: grid;
   place-items: center;
   padding: 1rem;
   background: rgba(20, 4, 4, 0.82);
 }
 
-.wheel-overlay.is-open {
-  display: grid;
+.wheel-overlay.is-hidden {
+  display: none;
 }
 
 .wheel-modal {

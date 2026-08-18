@@ -20,14 +20,15 @@
       padding: 20px !important;
       background: rgba(28, 22, 20, 0);
       backdrop-filter: blur(0px);
-      transition: background 0.7s ease, backdrop-filter 0.7s ease;
+      transition: background 0.9s ease, backdrop-filter 0.9s ease;
     }
     #wheelOverlay.is-open { display: grid !important; }
     #wheelOverlay.is-visible {
-      background: rgba(28, 22, 20, 0.55);
-      backdrop-filter: blur(6px);
+      background: rgba(28, 22, 20, 0.58);
+      backdrop-filter: blur(7px);
     }
 
+    /* Panel perdesi: aşağıdan yukarı açılır, hafif odaklanma hissiyle */
     .wheel-card {
       position: relative;
       width: min(94vw, 440px);
@@ -35,14 +36,22 @@
       background: #f7f3ef;
       color: #1d1714;
       text-align: center;
+      box-shadow: 0 30px 70px rgba(20, 14, 12, 0.35);
       opacity: 0;
-      transform: translateY(26px) scale(0.97);
-      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
-                  transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(40px) scale(0.985);
+      clip-path: inset(100% 0 0 0);
+      filter: blur(4px);
+      transition:
+        opacity 0.6s ease,
+        filter 0.9s ease,
+        transform 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+        clip-path 1.15s cubic-bezier(0.16, 1, 0.3, 1);
     }
     #wheelOverlay.is-visible .wheel-card {
       opacity: 1;
       transform: translateY(0) scale(1);
+      clip-path: inset(0 0 0 0);
+      filter: blur(0);
     }
 
     .wheel-x {
@@ -59,17 +68,50 @@
     }
     .wheel-x:hover { color: #1d1714; }
 
+    /* Yazılar maskenin arkasından yukarı doğru süzülür */
     .wheel-reveal {
       opacity: 0;
-      transform: translateY(14px);
-      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(20px);
+      clip-path: inset(0 0 100% 0);
+      transition:
+        opacity 0.8s ease,
+        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+        clip-path 0.9s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    #wheelOverlay.is-visible .wheel-reveal { opacity: 1; transform: translateY(0); }
-    #wheelOverlay.is-visible .d1 { transition-delay: 0.18s; }
-    #wheelOverlay.is-visible .d2 { transition-delay: 0.30s; }
-    #wheelOverlay.is-visible .d3 { transition-delay: 0.42s; }
-    #wheelOverlay.is-visible .d4 { transition-delay: 0.58s; }
-    #wheelOverlay.is-visible .d5 { transition-delay: 0.72s; }
+    #wheelOverlay.is-visible .wheel-reveal {
+      opacity: 1;
+      transform: translateY(0);
+      clip-path: inset(-30% 0 -30% 0);
+    }
+    #wheelOverlay.is-visible .d1 { transition-delay: 0.42s; }
+    #wheelOverlay.is-visible .d2 { transition-delay: 0.54s; }
+    #wheelOverlay.is-visible .d3 { transition-delay: 0.68s; }
+    #wheelOverlay.is-visible .d4 { transition-delay: 0.8s; }
+    #wheelOverlay.is-visible .d5 { transition-delay: 1.05s; }
+
+    /* Çark sahnesi maskesiz; kendi yerleşme hareketiyle gelir */
+    .wheel-stage.wheel-reveal { clip-path: none; transform: translateY(0) scale(0.9); }
+    #wheelOverlay.is-visible .wheel-stage.wheel-reveal {
+      clip-path: none;
+      transform: translateY(0) scale(1);
+    }
+
+    /* fill-mode yok: bitince transform sıfıra döner, çevirme hareketiyle çakışmaz */
+    #wheelOverlay.is-visible #wheel {
+      animation: wheelSettle 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
+    }
+    @keyframes wheelSettle {
+      from { transform: rotate(-32deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    #wheelOverlay.is-visible .wheel-pointer {
+      animation: pointerDrop 0.7s cubic-bezier(0.34, 1.4, 0.5, 1) 1.5s backwards;
+    }
+    @keyframes pointerDrop {
+      from { transform: translateX(-50%) translateY(-18px) scale(0.6); opacity: 0; }
+      to { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+    }
 
     .wheel-eyebrow {
       margin: 0;
@@ -192,7 +234,12 @@
     @media (prefers-reduced-motion: reduce) {
       #wheelOverlay,
       .wheel-card,
-      .wheel-reveal { transition-duration: 0.01s !important; }
+      .wheel-reveal {
+        transition-duration: 0.01s !important;
+        transition-delay: 0s !important;
+      }
+      #wheelOverlay.is-visible #wheel,
+      #wheelOverlay.is-visible .wheel-pointer { animation: none !important; }
     }
   </style>
 </head>
@@ -292,11 +339,16 @@
         overlay.style.setProperty("display", "grid", "important");
         document.body.className += " wheel-lock";
         document.body.style.overflow = "hidden";
+        spinBtn.disabled = true;
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             overlay.className = "wheel-overlay is-visible";
           });
         });
+        // Giris animasyonu bitmeden cevirme baslarsa hareket kesiliyor
+        setTimeout(function () {
+          if (!spinning) spinBtn.disabled = false;
+        }, 2400);
       }, 5000);
     })();
   </script>

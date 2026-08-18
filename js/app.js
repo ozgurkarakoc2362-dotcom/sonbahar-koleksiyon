@@ -107,7 +107,12 @@
   cartToggle.addEventListener("click", () => openCart(true));
   cartClose.addEventListener("click", () => openCart(false));
   cartBackdrop.addEventListener("click", () => openCart(false));
-  goCheckout.addEventListener("click", () => openCart(false));
+  // Adreste #odeme kalmasin: telefon tarayicisi sekmeyi o noktadan geri yukluyor
+  goCheckout.addEventListener("click", (e) => {
+    e.preventDefault();
+    openCart(false);
+    document.getElementById("odeme")?.scrollIntoView({ behavior: "smooth" });
+  });
 
   /* ---- Arama ---- */
   function openSearch(open) {

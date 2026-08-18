@@ -7,7 +7,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=wheel8" />
+  <link rel="stylesheet" href="css/styles.css?v=wheel9" />
+  <script>
+    // Telefon tarayicilari sekmeyi eski adres/kaydirma ile geri yukluyor;
+    // site her acilista hero bolumunden baslasin.
+    (function () {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      if (location.hash) {
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+      function toTop() { window.scrollTo(0, 0); }
+      document.addEventListener("DOMContentLoaded", toTop);
+      window.addEventListener("load", toTop);
+      // iOS/Android sekmeyi bellekten geri actiginda sayfa bastan yuklenmiyor
+      window.addEventListener("pageshow", function (e) {
+        if (e.persisted) location.reload();
+        else toTop();
+      });
+    })();
+  </script>
   <style>
     body.wheel-lock { overflow: hidden; }
 
@@ -544,9 +562,9 @@
     <div class="product-modal__body" id="productModalBody"></div>
   </dialog>
 
-  <script src="js/products.js"></script>
-  <script src="js/iyzico-config.js"></script>
-  <script src="js/cart.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/products.js?v=9"></script>
+  <script src="js/iyzico-config.js?v=9"></script>
+  <script src="js/cart.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>

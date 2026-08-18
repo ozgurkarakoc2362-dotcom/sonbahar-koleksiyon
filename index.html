@@ -7,66 +7,214 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=wheel7" />
+  <link rel="stylesheet" href="css/styles.css?v=wheel8" />
   <style>
     body.wheel-lock { overflow: hidden; }
+
     #wheelOverlay {
       position: fixed !important;
       inset: 0 !important;
       z-index: 2147483647 !important;
       display: none !important;
       place-items: center !important;
-      padding: 16px !important;
-      background: rgba(42, 28, 24, 0.78) !important;
+      padding: 20px !important;
+      background: rgba(28, 22, 20, 0);
+      backdrop-filter: blur(0px);
+      transition: background 0.7s ease, backdrop-filter 0.7s ease;
     }
-    #wheelOverlay.is-open {
-      display: grid !important;
+    #wheelOverlay.is-open { display: grid !important; }
+    #wheelOverlay.is-visible {
+      background: rgba(28, 22, 20, 0.55);
+      backdrop-filter: blur(6px);
     }
-    .wheel-modal { width: min(92vw, 420px); text-align: center; color: #fff8f6; }
-    .wheel-eyebrow { margin: 0; font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #e8cfc8; }
-    .wheel-title { margin: 6px 0 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(28px, 6vw, 42px); font-weight: 600; color: #fff; line-height: 1; }
-    .wheel-lead { margin: 8px 0 14px; color: rgba(255,248,246,.8); font-size: 14px; }
-    .wheel-stage { position: relative; width: min(68vw, 340px); height: min(68vw, 340px); margin: 0 auto; }
-    .wheel-pointer { position: absolute; top: -6px; left: 50%; z-index: 4; width: 0; height: 0; border-left: 11px solid transparent; border-right: 11px solid transparent; border-top: 24px solid #fff; transform: translateX(-50%); }
+
+    .wheel-card {
+      position: relative;
+      width: min(94vw, 440px);
+      padding: 42px 28px 30px;
+      background: #f7f3ef;
+      color: #1d1714;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(26px) scale(0.97);
+      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #wheelOverlay.is-visible .wheel-card {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .wheel-x {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      border: 0;
+      background: transparent;
+      font-size: 22px;
+      line-height: 1;
+      color: #6b5c55;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+    .wheel-x:hover { color: #1d1714; }
+
+    .wheel-reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #wheelOverlay.is-visible .wheel-reveal { opacity: 1; transform: translateY(0); }
+    #wheelOverlay.is-visible .d1 { transition-delay: 0.18s; }
+    #wheelOverlay.is-visible .d2 { transition-delay: 0.30s; }
+    #wheelOverlay.is-visible .d3 { transition-delay: 0.42s; }
+    #wheelOverlay.is-visible .d4 { transition-delay: 0.58s; }
+    #wheelOverlay.is-visible .d5 { transition-delay: 0.72s; }
+
+    .wheel-eyebrow {
+      margin: 0;
+      font-size: 10px;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: #8a7268;
+      font-weight: 500;
+    }
+    .wheel-title {
+      margin: 12px 0 0;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(30px, 7vw, 44px);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      line-height: 1.05;
+      color: #1d1714;
+    }
+    .wheel-title i { font-style: italic; color: #7d5c4e; }
+    .wheel-lead {
+      margin: 12px auto 0;
+      max-width: 30ch;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #6b5c55;
+      font-weight: 300;
+    }
+    .wheel-rule {
+      width: 34px;
+      height: 1px;
+      margin: 18px auto 20px;
+      background: #cbbdb4;
+    }
+
+    .wheel-stage { position: relative; width: min(62vw, 300px); height: min(62vw, 300px); margin: 0 auto; }
+    .wheel-pointer {
+      position: absolute; top: -5px; left: 50%; z-index: 4;
+      width: 0; height: 0;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-top: 20px solid #1d1714;
+      transform: translateX(-50%);
+    }
     #wheel {
       width: 100%; height: 100%; border-radius: 50%; position: relative;
-      border: 7px solid #8d6a64;
-      box-shadow: 0 0 0 5px #d7b8b2, 0 16px 32px rgba(0,0,0,.28);
+      border: 1px solid #d8ccc4;
+      box-shadow: 0 10px 26px rgba(29, 23, 20, 0.12);
       background: conic-gradient(
-        #d7b0aa 0deg 44.2deg, #f4ece8 44.2deg 45deg,
-        #c99a94 45deg 89.2deg, #f4ece8 89.2deg 90deg,
-        #e0c2bc 90deg 134.2deg, #f4ece8 134.2deg 135deg,
-        #b88983 135deg 179.2deg, #f4ece8 179.2deg 180deg,
-        #d4a8a2 180deg 224.2deg, #f4ece8 224.2deg 225deg,
-        #c0908a 225deg 269.2deg, #f4ece8 269.2deg 270deg,
-        #e6cdc8 270deg 314.2deg, #f4ece8 314.2deg 315deg,
-        #be8f89 315deg 359.2deg, #f4ece8 359.2deg 360deg
+        #e9ded6 0deg 44.4deg, #b9a79c 44.4deg 45deg,
+        #d9c7bd 45deg 89.4deg, #b9a79c 89.4deg 90deg,
+        #efe7e1 90deg 134.4deg, #b9a79c 134.4deg 135deg,
+        #cdb8ad 135deg 179.4deg, #b9a79c 179.4deg 180deg,
+        #e4d6cd 180deg 224.4deg, #b9a79c 224.4deg 225deg,
+        #d2c0b6 225deg 269.4deg, #b9a79c 269.4deg 270deg,
+        #f1eae5 270deg 314.4deg, #b9a79c 314.4deg 315deg,
+        #c8b3a8 315deg 359.4deg, #b9a79c 359.4deg 360deg
       );
     }
-    .wheel-label { position: absolute; inset: 0; display: flex; justify-content: center; padding-top: 11%; pointer-events: none; }
-    .wheel-label b { font-size: clamp(12px, 2.6vw, 15px); color: #4a2f2b; text-shadow: 0 1px 0 rgba(255,255,255,.45); }
-    #wheelSpin {
-      position: absolute; top: 50%; left: 50%; z-index: 5; width: 72px; height: 72px; margin: -36px 0 0 -36px;
-      border: 4px solid #fff; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e8c4be, #b88983 62%, #8d6a64);
-      color: #fff; font-weight: 700; font-size: 12px; letter-spacing: 0.12em; cursor: pointer;
+    .wheel-label { position: absolute; inset: 0; display: flex; justify-content: center; padding-top: 9%; pointer-events: none; }
+    .wheel-label b {
+      font-size: clamp(11px, 2.4vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: #3b2d26;
     }
-    .wheel-result { min-height: 22px; margin: 12px 0 10px; font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; color: #f0d9c8; font-weight: 600; }
-    .wheel-continue { background: #fff !important; color: #6e4b46 !important; border-color: #fff !important; }
+    #wheelSpin {
+      position: absolute; top: 50%; left: 50%; z-index: 5;
+      width: 76px; height: 76px; margin: -38px 0 0 -38px;
+      border: 1px solid #1d1714; border-radius: 50%;
+      background: #1d1714; color: #f7f3ef;
+      font-size: 10px; font-weight: 500; letter-spacing: 0.22em;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    }
+    #wheelSpin:hover:not(:disabled) { background: #7d5c4e; border-color: #7d5c4e; transform: scale(1.04); }
+    #wheelSpin:disabled { cursor: default; opacity: 0.75; }
+
+    .wheel-result {
+      min-height: 20px;
+      margin: 22px 0 0;
+      font-size: 12.5px;
+      letter-spacing: 0.06em;
+      color: #6b5c55;
+      font-weight: 400;
+    }
+    .wheel-result.is-win {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 22px;
+      letter-spacing: 0.01em;
+      color: #1d1714;
+    }
+    .wheel-continue {
+      margin-top: 18px;
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid #1d1714;
+      background: #1d1714;
+      color: #f7f3ef;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .wheel-continue:hover { background: transparent; color: #1d1714; }
+    .wheel-fine {
+      margin: 12px 0 0;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #a2918a;
+    }
+
+    @media (max-width: 520px) {
+      .wheel-card { padding: 34px 20px 24px; }
+      #wheelSpin { width: 64px; height: 64px; margin: -32px 0 0 -32px; font-size: 9px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #wheelOverlay,
+      .wheel-card,
+      .wheel-reveal { transition-duration: 0.01s !important; }
+    }
   </style>
 </head>
 <body>
-  <div id="wheelOverlay" class="wheel-overlay" style="position:fixed;inset:0;z-index:2147483647;display:none;place-items:center;padding:16px;background:rgba(20,4,4,.92);">
-    <div class="wheel-modal">
-      <p class="wheel-eyebrow">Hoş geldin</p>
-      <h2 class="wheel-title" id="wheelTitle">Şans Çarkı</h2>
-      <p class="wheel-lead">Çevir, indirimini kap — yüzde veya tutar hediyesi</p>
-      <div class="wheel-stage">
+  <div id="wheelOverlay" class="wheel-overlay">
+    <div class="wheel-card">
+      <button type="button" class="wheel-x" id="wheelClose" aria-label="Kapat">&times;</button>
+      <p class="wheel-eyebrow wheel-reveal d1">Sonbahar 2026</p>
+      <h2 class="wheel-title wheel-reveal d2">Sonbahar <i>İndirimi</i></h2>
+      <p class="wheel-lead wheel-reveal d3">
+        Yapraklar dökülürken fiyatlar da düşüyor.<br />
+        Çarkı bir kez çevir, sonbahara ait indirimini seç.
+      </p>
+      <div class="wheel-rule wheel-reveal d3" aria-hidden="true"></div>
+      <div class="wheel-stage wheel-reveal d4">
         <div class="wheel-pointer" aria-hidden="true"></div>
         <div id="wheel"></div>
         <button type="button" id="wheelSpin">ÇEVİR</button>
       </div>
-      <p class="wheel-result" id="wheelResult"></p>
-      <button type="button" class="btn btn--primary wheel-continue" id="wheelContinue">Siteye geç</button>
+      <p class="wheel-result wheel-reveal d5" id="wheelResult">Çevir düğmesine bas, şansını dene.</p>
+      <button type="button" class="wheel-continue wheel-reveal d5" id="wheelContinue">Koleksiyona göz at</button>
+      <p class="wheel-fine wheel-reveal d5">Tek çevirme hakkı · Sepette otomatik uygulanır</p>
     </div>
   </div>
   <script>
@@ -76,6 +224,7 @@
       var spinBtn = document.getElementById("wheelSpin");
       var resultEl = document.getElementById("wheelResult");
       var continueBtn = document.getElementById("wheelContinue");
+      var closeBtn = document.getElementById("wheelClose");
       if (!overlay || !wheelEl || !spinBtn) return;
       overlay.style.setProperty("display", "none", "important");
       var slices = [
@@ -100,11 +249,12 @@
         if (spinning) return;
         spinning = true;
         spinBtn.disabled = true;
-        resultEl.textContent = "Donuyor...";
+        resultEl.className = "wheel-result wheel-reveal d5";
+        resultEl.textContent = "Çark dönüyor…";
         var target = Math.floor(Math.random() * slices.length);
         var extra = 5 + Math.floor(Math.random() * 3);
         var next = extra * 360 + (360 - (target * sliceAngle + sliceAngle / 2));
-        wheelEl.style.transition = "transform 4.4s cubic-bezier(0.12, 0.7, 0.12, 1)";
+        wheelEl.style.transition = "transform 5s cubic-bezier(0.16, 0.9, 0.06, 1)";
         wheelEl.style.transform = "rotate(" + next + "deg)";
         setTimeout(function () {
           var normalized = ((360 - (next % 360)) % 360 + 360) % 360;
@@ -119,22 +269,34 @@
             });
           }
           window.dispatchEvent(new Event("cart:refresh"));
-          resultEl.textContent = "Tebrikler! " + won.label + " kazandin. Simdi urunlerde kullan.";
-          continueBtn.textContent = "Indirimi kullan";
-        }, 4500);
+          resultEl.className = "wheel-result wheel-reveal d5 is-win";
+          resultEl.textContent = won.label + " indirim senin — sonbahar iyi başladı.";
+          continueBtn.textContent = "İndirimi kullan";
+        }, 5100);
       }
       spinBtn.onclick = spin;
-      continueBtn.onclick = function () {
-        overlay.style.setProperty("display", "none", "important");
+
+      function closeWheel() {
+        overlay.className = "wheel-overlay";
+        setTimeout(function () {
+          overlay.style.setProperty("display", "none", "important");
+        }, 500);
         document.body.className = document.body.className.replace("wheel-lock", "");
         document.body.style.overflow = "";
         window.dispatchEvent(new Event("cart:refresh"));
-      };
+      }
+      continueBtn.onclick = closeWheel;
+      if (closeBtn) closeBtn.onclick = closeWheel;
+
       setTimeout(function () {
         overlay.style.setProperty("display", "grid", "important");
         document.body.className += " wheel-lock";
         document.body.style.overflow = "hidden";
-        resultEl.textContent = "CEVIR dugmesine bas, sonra doner.";
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            overlay.className = "wheel-overlay is-visible";
+          });
+        });
       }, 5000);
     })();
   </script>

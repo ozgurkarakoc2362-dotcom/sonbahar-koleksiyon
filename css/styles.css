@@ -1185,7 +1185,24 @@ code {
   }
 }
 
-/* ---------- Şans çarkı ---------- */
+.prize-banner {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: #9b1111;
+  color: #fff;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.55rem 1rem;
+}
+
+body.has-prize-banner .hero {
+  padding-top: calc(var(--header-h) + 2.2rem);
+}
+
 body.wheel-lock {
   overflow: hidden;
 }
@@ -1193,63 +1210,63 @@ body.wheel-lock {
 .wheel-overlay {
   position: fixed;
   inset: 0;
-  z-index: 400;
-  display: grid;
+  z-index: 2147483647;
+  display: none;
   place-items: center;
   padding: 1rem;
-  background: rgba(20, 4, 4, 0.82);
+  background: rgba(42, 28, 24, 0.78);
 }
 
-.wheel-overlay.is-hidden {
-  display: none;
+.wheel-overlay.is-open {
+  display: grid !important;
 }
 
 .wheel-modal {
-  width: min(92vw, 640px);
+  width: min(92vw, 420px);
   text-align: center;
   color: #fff8f6;
 }
 
 .wheel-eyebrow {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: #ffb4b0;
+  color: #e8cfc8;
   font-weight: 500;
 }
 
 .wheel-title {
   margin: 0.35rem 0 0;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 8vw, 4rem);
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
   font-weight: 600;
   line-height: 1;
   color: #fff;
 }
 
 .wheel-lead {
-  margin: 0.6rem 0 1.25rem;
+  margin: 0.5rem 0 1rem;
   color: rgba(255, 248, 246, 0.78);
 }
 
 .wheel-stage {
   position: relative;
-  width: min(86vw, 520px);
-  height: min(86vw, 520px);
+  width: min(68vw, 340px);
+  height: min(68vw, 340px);
   margin: 0 auto;
 }
 
 .wheel-pointer {
   position: absolute;
-  top: -8px;
+  top: -6px;
   left: 50%;
   z-index: 4;
   width: 0;
   height: 0;
-  border-left: 16px solid transparent;
-  border-right: 16px solid transparent;
-  border-top: 34px solid #fff;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 24px solid #fff;
   transform: translateX(-50%);
   filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.35));
 }
@@ -1259,20 +1276,27 @@ body.wheel-lock {
   height: 100%;
   border-radius: 50%;
   position: relative;
-  border: 10px solid #7a0b0b;
+  border: 7px solid #8d6a64;
   box-shadow:
-    0 0 0 8px #d32f2f,
-    0 0 0 14px #4a0505,
-    0 28px 50px rgba(0, 0, 0, 0.45);
+    0 0 0 5px #d7b8b2,
+    0 16px 32px rgba(0, 0, 0, 0.28);
   background: conic-gradient(
-    #c62828 0deg 45deg,
-    #8b0000 45deg 90deg,
-    #e53935 90deg 135deg,
-    #6d0b0b 135deg 180deg,
-    #d32f2f 180deg 225deg,
-    #9b1111 225deg 270deg,
-    #ff1744 270deg 315deg,
-    #7f1010 315deg 360deg
+    #d7b0aa 0deg 44.2deg,
+    #f4ece8 44.2deg 45deg,
+    #c99a94 45deg 89.2deg,
+    #f4ece8 89.2deg 90deg,
+    #e0c2bc 90deg 134.2deg,
+    #f4ece8 134.2deg 135deg,
+    #b88983 135deg 179.2deg,
+    #f4ece8 179.2deg 180deg,
+    #d4a8a2 180deg 224.2deg,
+    #f4ece8 224.2deg 225deg,
+    #c0908a 225deg 269.2deg,
+    #f4ece8 269.2deg 270deg,
+    #e6cdc8 270deg 314.2deg,
+    #f4ece8 314.2deg 315deg,
+    #be8f89 315deg 359.2deg,
+    #f4ece8 359.2deg 360deg
   );
 }
 
@@ -1287,10 +1311,10 @@ body.wheel-lock {
 }
 
 .wheel-label b {
-  font-size: clamp(0.9rem, 3vw, 1.25rem);
+  font-size: clamp(0.75rem, 2.4vw, 0.95rem);
   letter-spacing: 0.04em;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.55);
+  color: #4a2f2b;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
   font-weight: 700;
 }
 
@@ -1299,18 +1323,18 @@ body.wheel-lock {
   top: 50%;
   left: 50%;
   z-index: 5;
-  width: 92px;
-  height: 92px;
-  margin: -46px 0 0 -46px;
-  border: 5px solid #fff;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border: 4px solid #fff;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ff5c5c, #b71c1c 55%, #6a0909);
+  background: radial-gradient(circle at 35% 30%, #e8c4be, #b88983 62%, #8d6a64);
   color: #fff;
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
 }
 
 .wheel-hub:hover:not(:disabled) {
@@ -1349,14 +1373,16 @@ body.wheel-lock {
 }
 
 @media (max-width: 520px) {
-  .wheel-hub {
-    width: 76px;
-    height: 76px;
-    margin: -38px 0 0 -38px;
-    font-size: 0.7rem;
+  .wheel-hub,
+  #wheelSpin {
+    width: 64px;
+    height: 64px;
+    margin: -32px 0 0 -32px;
+    font-size: 0.65rem;
   }
 
-  .wheel {
-    border-width: 7px;
+  .wheel,
+  #wheel {
+    border-width: 6px;
   }
 }

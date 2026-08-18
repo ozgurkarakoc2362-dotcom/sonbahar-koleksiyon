@@ -32,9 +32,43 @@
   const searchClose = $("#searchClose");
   const searchInput = $("#searchInput");
   const searchResults = $("#searchResults");
+  const prizeBanner = $("#prizeBanner");
 
   let activeCategory = "all";
   let selectedSize = "";
+
+  function activePrize() {
+    return (Cart.getWheelPrize && Cart.getWheelPrize()) || window.__wheelPrize || null;
+  }
+
+  function productPriceHtml(p) {
+    const prize = activePrize();
+    if (prize && prize.type === "percent") {
+      const now = p.price * (1 - prize.value / 100);
+      return `${formatTRY(now)} <small><s>${formatTRY(p.price)}</s></small>`;
+    }
+    if (p.oldPrice) {
+      return `${formatTRY(p.price)} <small><s>${formatTRY(p.oldPrice)}</s></small>`;
+    }
+    return formatTRY(p.price);
+  }
+
+  function updatePrizeBanner() {
+    if (!prizeBanner) return;
+    const prize = activePrize();
+    if (!prize) {
+      prizeBanner.hidden = true;
+      prizeBanner.textContent = "";
+      document.body.classList.remove("has-prize-banner");
+      return;
+    }
+    prizeBanner.hidden = false;
+    document.body.classList.add("has-prize-banner");
+    prizeBanner.textContent =
+      prize.type === "percent"
+        ? `Çark indirimin aktif: ürünlerde %${prize.value}. Sepete ekle, ödeme tutarından düşülür.`
+        : `Çark indirimin aktif: sepet toplamından ${prize.value} TL düşülür.`;
+  }
 
   /* ---- Toast ---- */
   function toast(msg) {
@@ -112,7 +146,7 @@
         <img src="${p.image}" alt="" />
         <div>
           <p class="search-result__name">${p.name}</p>
-          <p class="search-result__meta">${CATEGORY_LABELS[p.category]} · ${formatTRY(p.price)}</p>
+          <p class="search-result__meta">${CATEGORY_LABELS[p.category]} · ${productPriceHtml(p).replace(/<[^>]+>/g, " ")}</p>
         </div>
       </button>`
       )
@@ -162,7 +196,7 @@
         (p, idx) => `
       <article class="product-card" style="animation-delay:${idx * 0.05}s" data-id="${p.id}">
         <div class="product-card__media" data-open="${p.id}">
-          ${p.badge ? `<span class="product-card__badge">${p.badge}</span>` : ""}
+          ${p.badge || (activePrize() && activePrize().type === "percent") ? `<span class="product-card__badge">${activePrize() && activePrize().type === "percent" ? `%${activePrize().value} cark` : p.badge}</span>` : ""}
           <img src="${p.image}" alt="${p.name}" loading="lazy" />
         </div>
         <div class="product-card__body">
@@ -170,8 +204,7 @@
           <h3 class="product-card__name">${p.name}</h3>
           <p class="product-card__desc">${p.shortDesc}</p>
           <p class="product-card__price">
-            ${formatTRY(p.price)}
-            ${p.oldPrice ? `<small><s>${formatTRY(p.oldPrice)}</s></small>` : ""}
+            ${productPriceHtml(p)}
           </p>
           <button type="button" class="btn btn--add" data-quick-add="${p.id}">Sepete Ekle</button>
         </div>
@@ -227,9 +260,7 @@
       <div class="product-modal__info">
         <p class="eyebrow">${CATEGORY_LABELS[p.category]}</p>
         <h2>${p.name}</h2>
-        <p class="price">${formatTRY(p.price)}${
-          p.oldPrice ? ` <small style="color:var(--muted);font-weight:300"><s>${formatTRY(p.oldPrice)}</s></small>` : ""
-        }</p>
+        <p class="price">${productPriceHtml(p)}</p>
         <p class="detail">${p.detail}</p>
         <p class="detail" style="margin-top:0.75rem">Stok: <strong>${p.stock}</strong></p>
         ${
@@ -364,6 +395,8 @@
     cartCountEl.dataset.empty = n === 0 ? "true" : "false";
     renderCart();
     renderCheckoutSummary();
+    updatePrizeBanner();
+    renderProducts();
   }
 
   /* ---- Checkout özeti ---- */

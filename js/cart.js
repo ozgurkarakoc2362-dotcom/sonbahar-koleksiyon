@@ -1,26 +1,35 @@
 /**
  * Sepet mantığı + çorap kampanyası (%10)
- * Ürün fiyatları products.js'den okunur; burada hesaplanır.
+ * Her sayfa açılışında sıfırlanır (eski sepet / çark kaydı tutulmaz).
  */
 
 const CART_STORAGE_KEY = "atelier_nord_cart_v1";
 const WHEEL_PRIZE_KEY = "atelier_nord_wheel_prize";
 
+try {
+  localStorage.removeItem(CART_STORAGE_KEY);
+  localStorage.removeItem(WHEEL_PRIZE_KEY);
+} catch {
+  /* tarayıcı depolaması kapalıysa geç */
+}
+
 const Cart = {
   items: [],
+  wheelPrize: null,
 
   load() {
+    this.items = [];
     try {
-      const raw = localStorage.getItem(CART_STORAGE_KEY);
-      this.items = raw ? JSON.parse(raw) : [];
+      localStorage.removeItem(CART_STORAGE_KEY);
+      localStorage.removeItem(WHEEL_PRIZE_KEY);
     } catch {
-      this.items = [];
+      /* ignore */
     }
     return this.items;
   },
 
   save() {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items));
+    /* Sayfa kapanınca unutulsun diye kaydetmiyoruz */
   },
 
   /**
@@ -84,20 +93,13 @@ const Cart = {
   },
 
   getWheelPrize() {
-    try {
-      const raw = localStorage.getItem(WHEEL_PRIZE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
+    if (this.wheelPrize) return this.wheelPrize;
+    return window.__wheelPrize || null;
   },
 
   setWheelPrize(prize) {
-    if (!prize) {
-      localStorage.removeItem(WHEEL_PRIZE_KEY);
-      return;
-    }
-    localStorage.setItem(WHEEL_PRIZE_KEY, JSON.stringify(prize));
+    this.wheelPrize = prize || null;
+    window.__wheelPrize = this.wheelPrize;
   },
 
   /** Çorap kampanyası aktif mi? */

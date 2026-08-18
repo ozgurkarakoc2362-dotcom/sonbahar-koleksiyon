@@ -98,11 +98,11 @@ code {
   justify-self: start;
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.7rem;
   border: 1px solid var(--brown-700);
   background: var(--brown-900);
   color: var(--cream);
-  padding: 0.45rem 0.75rem 0.45rem 0.5rem;
+  padding: 0.55rem 0.95rem 0.55rem 0.65rem;
   cursor: pointer;
   transition: background 0.25s, transform 0.25s var(--ease);
 }
@@ -113,24 +113,24 @@ code {
 }
 
 .menu-toggle__box {
-  width: 28px;
-  height: 22px;
+  width: 34px;
+  height: 27px;
   border: 1px solid rgba(243, 235, 226, 0.35);
   display: grid;
   place-content: center;
-  gap: 3px;
-  padding: 4px;
+  gap: 4px;
+  padding: 5px;
 }
 
 .menu-toggle__box span {
   display: block;
-  width: 14px;
-  height: 1.5px;
+  width: 18px;
+  height: 1.8px;
   background: var(--cream);
 }
 
 .menu-toggle__label {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 500;
@@ -167,13 +167,13 @@ code {
 .header-actions {
   justify-self: end;
   display: flex;
-  gap: 0.35rem;
+  gap: 0.5rem;
 }
 
 .icon-btn {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 52px;
+  height: 52px;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--brown-800);
@@ -190,15 +190,15 @@ code {
 
 .cart-count {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
+  top: 5px;
+  right: 5px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
   border-radius: 999px;
   background: var(--blue-500);
   color: white;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 600;
   display: grid;
   place-items: center;
@@ -1177,6 +1177,11 @@ code {
 
   .menu-toggle__label {
     display: none;
+  }
+
+  .icon-btn {
+    width: 46px;
+    height: 46px;
   }
 
   .hero__cta {

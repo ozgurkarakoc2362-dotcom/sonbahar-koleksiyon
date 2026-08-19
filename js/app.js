@@ -650,7 +650,7 @@
     payFrame.removeAttribute("srcdoc");
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = SHOPIER_CONFIG.endpoint;
+    form.action = shopierEndpoint();
     form.target = "payFrame";
     form.style.display = "none";
     const input = document.createElement("input");

@@ -66,7 +66,7 @@ tarayıcıya konulamaz.
 `js/shopier-config.js` içindeki `endpoint` boşsa site **demo modda** çalışır:
 gerçek para çekilmez, pencerede sipariş özeti gösterilir.
 
-### 1. Aracı servisi yayına alın (ücretsiz)
+### 1. Siteyi Vercel'e yükleyin (ücretsiz)
 
 1. [vercel.com](https://vercel.com) → GitHub ile giriş → **Add New → Project**
 2. `sonbahar-koleksiyon` deposunu seçin → **Deploy**
@@ -74,25 +74,24 @@ gerçek para çekilmez, pencerede sipariş özeti gösterilir.
 
 | Değişken | Değer |
 |----------|-------|
-| `SHOPIER_API_KEY` | Shopier panelindeki API kullanıcı adı |
-| `SHOPIER_API_SECRET` | Shopier panelindeki API şifresi |
-| `SITE_URL` | `https://ozgurkarakoc2362-dotcom.github.io/sonbahar-koleksiyon` |
+| `SHOPIER_API_KEY` | Shopier → Entegrasyonlar → Modül Yönetimi → Modül Ayarları → API Kullanıcı |
+| `SHOPIER_API_SECRET` | Aynı sayfadaki API Şifre |
+| `SITE_URL` | Vercel'in verdiği adres, ör. `https://proje-adi.vercel.app` |
 
 4. **Deployments → Redeploy** (değişkenler ancak yeni yayında geçerli olur)
 
-### 2. Siteyi servise bağlayın
+Site ve ödeme servisi aynı adreste olduğu için `js/shopier-config.js` içindeki
+`endpoint` alanını doldurmak gerekmez; `/api/shopier` kendiliğinden bulunur.
+GitHub Pages kopyası ve yerel açılışlar demo modda kalır.
 
-`js/shopier-config.js`:
+### 2. Shopier panelinde iki alan
 
-```js
-endpoint: "https://PROJE-ADI.vercel.app/api/shopier"
-```
+Entegrasyonlar → Modül Yönetimi → Modül Ayarları:
 
-### 3. Shopier panelinde geri dönüş adresi
-
-```
-https://PROJE-ADI.vercel.app/api/shopier-callback
-```
+| Alan | Değer |
+|------|-------|
+| Kayıtlı alan adı | `proje-adi.vercel.app` |
+| Geri Dönüş URL | `https://proje-adi.vercel.app/api/shopier-callback` |
 
 ### Güvenlik notları
 

@@ -22,8 +22,16 @@
  */
 
 const SHOPIER_CONFIG = {
-  /** Örnek: "https://sonbahar-koleksiyon.vercel.app/api/shopier" */
+  /**
+   * Genelde boş bırakın: site Vercel'de yayındaysa ödeme servisi aynı adreste
+   * (/api/shopier) olduğu için kendiliğinden bulunur.
+   * Servis ayrı bir yerdeyse tam adresi yazın:
+   *   "https://proje-adi.vercel.app/api/shopier"
+   */
   endpoint: "",
+
+  /** Aynı adresteki /api/shopier otomatik kullanılsın mı? */
+  sameOriginApi: true,
 
   /** Ödeme penceresinin başlığında görünen mağaza adı */
   storeName: "Atelier Nord",
@@ -35,9 +43,28 @@ const SHOPIER_CONFIG = {
   freeShippingOver: 0
 };
 
-/** Aracı servis tanımlı mı? */
+/**
+ * Ödeme isteğinin gideceği adres.
+ * GitHub Pages ve yerel denemelerde aracı servis olmadığı için boş döner → demo mod.
+ */
+function shopierEndpoint() {
+  const manual = String(SHOPIER_CONFIG.endpoint || "").trim();
+  if (manual) return manual;
+
+  if (!SHOPIER_CONFIG.sameOriginApi) return "";
+  if (!location.protocol.startsWith("http")) return "";
+
+  const host = location.hostname.toLowerCase();
+  const noApiHere =
+    host.endsWith("github.io") || host === "localhost" || host === "127.0.0.1";
+  if (noApiHere) return "";
+
+  return location.origin + "/api/shopier";
+}
+
+/** Aracı servis kullanılabilir mi? */
 function shopierReady() {
-  return typeof SHOPIER_CONFIG.endpoint === "string" && SHOPIER_CONFIG.endpoint.trim().length > 0;
+  return shopierEndpoint().length > 0;
 }
 
 /**

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=wheel10" />
+  <link rel="stylesheet" href="css/styles.css?v=12" />
   <script>
     // Telefon tarayicilari sekmeyi eski adres/kaydirma ile geri yukluyor;
     // site her acilista hero bolumunden baslasin.
@@ -480,48 +480,120 @@
       <p class="eyebrow">Atelier Nord</p>
       <h2 class="section-title">Sakin bir gardırop</h2>
       <p>İstanbul’dan çıkan, sınırlı üretim parçalar. Fotoğrafları kendi stüdyomuzda çekiyoruz; her ürünün kumaş, kesim ve bakım bilgisini ayrıntılı yazıyoruz.</p>
-      <p>Ödemeler <strong>iyzico</strong> altyapısı ile güvenli şekilde alınır. Sepetinizi onayladıktan sonra kart bilgileriniz iyzico ödeme sayfasında işlenir.</p>
+      <p>Ödemeler <strong>Shopier</strong> altyapısı ile güvenli şekilde alınır. Siparişinizi onayladıktan sonra kart bilgileriniz Shopier’in 3D Secure korumalı ekranında işlenir; bu siteye kaydedilmez.</p>
     </div>
     <div class="about__visual" aria-hidden="true"></div>
   </section>
 
   <!-- Ödeme / Checkout -->
-  <section class="checkout-section" id="odeme">
-    <div class="section-head">
-      <h2 class="section-title">Ödeme</h2>
-      <p class="section-sub">iyzico ile güvenli ödeme · fiyatları <code>js/products.js</code> dosyasından düzenleyebilirsiniz</p>
+  <section class="checkout" id="odeme">
+    <div class="checkout__head">
+      <p class="eyebrow">Güvenli ödeme</p>
+      <h2 class="section-title">Siparişini tamamla</h2>
+      <ol class="steps" id="checkoutSteps">
+        <li class="step is-active" data-step="1"><span class="step__no">1</span>Sepet</li>
+        <li class="step" data-step="2"><span class="step__no">2</span>Teslimat</li>
+        <li class="step" data-step="3"><span class="step__no">3</span>Ödeme</li>
+      </ol>
     </div>
-    <form class="checkout-form" id="checkoutForm">
-      <div class="checkout-form__grid">
-        <label>
-          Ad Soyad
-          <input type="text" name="name" required placeholder="Adınız Soyadınız" />
-        </label>
-        <label>
-          E-posta
-          <input type="email" name="email" required placeholder="ornek@mail.com" />
-        </label>
-        <label>
-          Telefon
-          <input type="tel" name="phone" required placeholder="05xx xxx xx xx" />
-        </label>
-        <label>
-          Şehir
-          <input type="text" name="city" required placeholder="İstanbul" />
-        </label>
-        <label class="full">
-          Adres
-          <textarea name="address" rows="3" required placeholder="Mahalle, sokak, bina no..."></textarea>
-        </label>
+
+    <div class="checkout__grid">
+      <div class="checkout__main">
+        <!-- Adım 1: Sepet -->
+        <div class="pane is-active" data-pane="1">
+          <h3 class="pane__title">Sepetindeki ürünler</h3>
+          <div class="pane__items" id="checkoutItems"></div>
+          <div class="pane__actions">
+            <a class="btn btn--ghost" href="#urunler">Alışverişe devam et</a>
+            <button type="button" class="btn btn--primary" id="toDelivery">Teslimat bilgilerine geç</button>
+          </div>
+        </div>
+
+        <!-- Adım 2: Teslimat -->
+        <form class="pane" data-pane="2" id="deliveryForm" novalidate>
+          <h3 class="pane__title">Teslimat bilgileri</h3>
+          <div class="field-grid">
+            <label class="field">
+              <span class="field__label">Ad</span>
+              <input type="text" name="firstName" autocomplete="given-name" placeholder="Ozgur" required />
+              <span class="field__error"></span>
+            </label>
+            <label class="field">
+              <span class="field__label">Soyad</span>
+              <input type="text" name="lastName" autocomplete="family-name" placeholder="Karakoç" required />
+              <span class="field__error"></span>
+            </label>
+            <label class="field">
+              <span class="field__label">E-posta</span>
+              <input type="email" name="email" autocomplete="email" placeholder="ornek@mail.com" required />
+              <span class="field__error"></span>
+            </label>
+            <label class="field">
+              <span class="field__label">Telefon</span>
+              <input type="tel" name="phone" autocomplete="tel" placeholder="05xx xxx xx xx" required />
+              <span class="field__error"></span>
+            </label>
+            <label class="field">
+              <span class="field__label">İl</span>
+              <input type="text" name="city" autocomplete="address-level1" placeholder="İstanbul" required />
+              <span class="field__error"></span>
+            </label>
+            <label class="field">
+              <span class="field__label">İlçe</span>
+              <input type="text" name="district" autocomplete="address-level2" placeholder="Kadıköy" required />
+              <span class="field__error"></span>
+            </label>
+            <label class="field">
+              <span class="field__label">Posta kodu</span>
+              <input type="text" name="postcode" autocomplete="postal-code" inputmode="numeric" placeholder="34710" required />
+              <span class="field__error"></span>
+            </label>
+            <label class="field field--full">
+              <span class="field__label">Adres</span>
+              <textarea name="address" rows="3" autocomplete="street-address" placeholder="Mahalle, sokak, bina ve daire no" required></textarea>
+              <span class="field__error"></span>
+            </label>
+            <label class="field field--full">
+              <span class="field__label">Sipariş notu <em>(isteğe bağlı)</em></span>
+              <input type="text" name="note" placeholder="Forma sırt ismi, kapı kodu vb." />
+            </label>
+          </div>
+          <div class="pane__actions">
+            <button type="button" class="btn btn--ghost" data-back="1">Sepete dön</button>
+            <button type="submit" class="btn btn--primary">Ödeme adımına geç</button>
+          </div>
+        </form>
+
+        <!-- Adım 3: Ödeme -->
+        <div class="pane" data-pane="3">
+          <h3 class="pane__title">Ödeme</h3>
+          <div class="review" id="deliveryReview"></div>
+
+          <div class="pay-method">
+            <span class="pay-method__radio" aria-hidden="true"></span>
+            <span class="pay-method__body">
+              <strong>Kredi / banka kartı — Shopier</strong>
+              <small>Tek çekim veya taksitli ödeme · 3D Secure doğrulama</small>
+            </span>
+            <span class="pay-method__brand">shopier</span>
+          </div>
+
+          <ul class="trust">
+            <li>3D Secure korumalı ödeme</li>
+            <li>Kart bilgileri bu sitede saklanmaz</li>
+            <li>14 gün içinde koşulsuz iade</li>
+          </ul>
+
+          <div class="pane__actions">
+            <button type="button" class="btn btn--ghost" data-back="2">Bilgileri düzenle</button>
+            <button type="button" class="btn btn--primary" id="payBtn">Güvenli Ödemeye Geç</button>
+          </div>
+          <p class="checkout-note" id="payNote"></p>
+        </div>
       </div>
-      <div class="checkout-summary" id="checkoutSummary">
-        <p>Sepetiniz boş. Ürün ekleyip buradan ödeme yapabilirsiniz.</p>
-      </div>
-      <button type="submit" class="btn btn--primary btn--wide" id="payBtn" disabled>
-        iyzico ile Güvenli Öde
-      </button>
-      <p class="checkout-note">Canlı ödemeyi açmak için <code>js/iyzico-config.js</code> içindeki anahtarları doldurun. Demo modda sipariş özeti gösterilir.</p>
-    </form>
+
+      <aside class="order-summary" id="orderSummary" aria-label="Sipariş özeti"></aside>
+    </div>
   </section>
 
   <footer class="site-footer">
@@ -529,7 +601,7 @@
       <span class="brand__mark">AN</span>
       <span>Atelier Nord © 2026</span>
     </div>
-    <p>Ödeme altyapısı: iyzico · Kendi ürünlerinizi <code>js/products.js</code> ile yönetin</p>
+    <p>Ödeme altyapısı: Shopier · 3D Secure korumalı</p>
   </footer>
 
   <!-- Sepet paneli -->
@@ -562,9 +634,24 @@
     <div class="product-modal__body" id="productModalBody"></div>
   </dialog>
 
-  <script src="js/products.js?v=9"></script>
-  <script src="js/iyzico-config.js?v=9"></script>
-  <script src="js/cart.js?v=9"></script>
-  <script src="js/app.js?v=9"></script>
+  <!-- Site içinde açılan Shopier ödeme penceresi -->
+  <div class="pay-modal" id="payModal" aria-hidden="true">
+    <div class="pay-modal__panel" role="dialog" aria-label="Güvenli ödeme">
+      <div class="pay-modal__head">
+        <span class="pay-modal__title">Güvenli Ödeme</span>
+        <button type="button" class="pay-modal__close" id="payModalClose" aria-label="Ödemeyi kapat">×</button>
+      </div>
+      <div class="pay-modal__body">
+        <div class="pay-modal__loading" id="payLoading">Güvenli ödeme ekranı açılıyor…</div>
+        <iframe id="payFrame" name="payFrame" title="Shopier güvenli ödeme ekranı"></iframe>
+      </div>
+      <p class="pay-modal__foot">Kart bilgileriniz Shopier’in güvenli ekranında işlenir, bu sitede saklanmaz.</p>
+    </div>
+  </div>
+
+  <script src="js/products.js?v=10"></script>
+  <script src="js/shopier-config.js?v=10"></script>
+  <script src="js/cart.js?v=10"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>

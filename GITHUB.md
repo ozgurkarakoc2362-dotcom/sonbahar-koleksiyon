@@ -87,7 +87,7 @@ GitHub Pages açıldıktan sonra site birkaç gün–hafta içinde Google’da i
 
 | Konu | Açıklama |
 |------|----------|
-| iyzico canlı ödeme | Sadece HTML yeterli değil; backend + HTTPS gerekir |
+| Shopier canlı ödeme | Sadece HTML yeterli değil; imzalama için aracı servis gerekir (README) |
 | Fotoğraflar | `images/` klasörüne koyup `js/products.js` içinde yolu güncelleyin |
 | Repo adı farklıysa | Pages URL’si repo adına göre değişir |
 

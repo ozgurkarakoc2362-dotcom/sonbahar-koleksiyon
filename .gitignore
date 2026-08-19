@@ -8,6 +8,6 @@ Desktop.ini
 .idea/
 *.swp
 
-# Env / secrets (iyzico anahtarları asla commit etmeyin)
+# Env / secrets (Shopier anahtarları asla commit etmeyin)
 .env
 .env.*

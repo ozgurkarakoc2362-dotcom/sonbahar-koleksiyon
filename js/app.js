@@ -23,9 +23,17 @@
   const categoryLabel = $("#categoryLabel");
   const productModal = $("#productModal");
   const productModalBody = $("#productModalBody");
-  const checkoutForm = $("#checkoutForm");
-  const checkoutSummary = $("#checkoutSummary");
+  const checkoutSection = $("#odeme");
+  const checkoutSteps = $("#checkoutSteps");
+  const checkoutItems = $("#checkoutItems");
+  const orderSummary = $("#orderSummary");
+  const deliveryForm = $("#deliveryForm");
+  const deliveryReview = $("#deliveryReview");
   const payBtn = $("#payBtn");
+  const payNote = $("#payNote");
+  const payModal = $("#payModal");
+  const payFrame = $("#payFrame");
+  const payLoading = $("#payLoading");
   const goCheckout = $("#goCheckout");
   const searchBtn = $("#searchBtn");
   const searchModal = $("#searchModal");
@@ -404,95 +412,286 @@
     renderProducts();
   }
 
-  /* ---- Checkout özeti ---- */
+  /* ---- Ödeme adımları ---- */
+  let step = 1;
+  let buyerInfo = null;
+
+  function goStep(next, scroll = true) {
+    step = next;
+    $$(".pane", checkoutSection).forEach((p) =>
+      p.classList.toggle("is-active", p.dataset.pane === String(next))
+    );
+    $$(".step", checkoutSteps).forEach((s) => {
+      const n = Number(s.dataset.step);
+      s.classList.toggle("is-active", n === next);
+      s.classList.toggle("is-done", n < next);
+    });
+    if (next === 3) renderReview();
+    if (scroll) checkoutSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function renderCheckoutSummary() {
     const summary = Cart.summary();
+
     if (!summary.items.length) {
-      checkoutSummary.innerHTML = `<p>Sepetiniz boş. Ürün ekleyip buradan ödeme yapabilirsiniz.</p>`;
+      checkoutItems.innerHTML = `<p class="pane__empty">Sepetin boş. Koleksiyondan bir parça seçtiğinde burada görünecek.</p>`;
+      orderSummary.innerHTML = `
+        <h3 class="order-summary__title">Sipariş özeti</h3>
+        <p class="order-summary__empty">Henüz ürün yok.</p>`;
+      $("#toDelivery").disabled = true;
       payBtn.disabled = true;
+      if (step !== 1) goStep(1, false);
       return;
     }
 
-    const lines = summary.items
+    checkoutItems.innerHTML = summary.items
       .map(
-        (i) =>
-          `<div class="checkout-summary__row"><span>${i.name}${i.size ? ` · ${i.size}` : ""} × ${i.qty}</span><span>${formatTRY(i.priceAtAdd * i.qty)}</span></div>`
+        (i) => `
+        <div class="line" data-key="${i.key}">
+          <img src="${i.image}" alt="${i.name}" />
+          <div class="line__body">
+            <p class="line__name">${i.name}</p>
+            <p class="line__meta">${i.size ? `Beden ${i.size} · ` : ""}${formatTRY(i.priceAtAdd)}</p>
+            <div class="line__qty">
+              <button type="button" data-dec="${i.key}" aria-label="Azalt">−</button>
+              <span>${i.qty}</span>
+              <button type="button" data-inc="${i.key}" aria-label="Artır">+</button>
+            </div>
+          </div>
+          <div class="line__right">
+            <span class="line__price">${formatTRY(i.priceAtAdd * i.qty)}</span>
+            <button type="button" class="line__remove" data-remove="${i.key}">Kaldır</button>
+          </div>
+        </div>`
       )
       .join("");
 
-    checkoutSummary.innerHTML = `
-      ${lines}
-      <div class="checkout-summary__row"><span>Ara toplam</span><span>${formatTRY(summary.subtotal)}</span></div>
-      ${
-        summary.discounts?.length
-          ? summary.discounts
-              .map(
-                (d) =>
-                  `<div class="checkout-summary__row is-discount"><span>${d.label}</span><span>−${formatTRY(d.amount)}</span></div>`
-              )
-              .join("")
-          : ""
-      }
-      <div class="checkout-summary__row is-total"><span>Ödenecek</span><span>${formatTRY(summary.total)}</span></div>`;
+    const shipping = Number(SHOPIER_CONFIG.shipping) || 0;
+    orderSummary.innerHTML = `
+      <h3 class="order-summary__title">Sipariş özeti</h3>
+      <div class="order-summary__rows">
+        <div class="row"><span>Ara toplam (${summary.items.reduce((s, i) => s + i.qty, 0)} ürün)</span><span>${formatTRY(summary.subtotal)}</span></div>
+        ${
+          summary.discounts?.length
+            ? summary.discounts
+                .map(
+                  (d) =>
+                    `<div class="row discount"><span>${d.label}</span><span>−${formatTRY(d.amount)}</span></div>`
+                )
+                .join("")
+            : `<div class="row muted"><span>İndirim</span><span>Sepete çorap ekle, %${summary.discountPercent}</span></div>`
+        }
+        <div class="row"><span>Kargo</span><span>${shipping > 0 ? formatTRY(shipping) : "Ücretsiz"}</span></div>
+        <div class="row total"><span>Ödenecek</span><span>${formatTRY(summary.total + shipping)}</span></div>
+      </div>
+      <p class="order-summary__note">Tutar Shopier’in güvenli ekranında tahsil edilir.</p>`;
 
+    $("#toDelivery").disabled = false;
     payBtn.disabled = false;
   }
 
-  checkoutForm.addEventListener("submit", async (e) => {
+  function renderReview() {
+    if (!buyerInfo) return;
+    deliveryReview.innerHTML = `
+      <div class="review__row">
+        <span class="review__label">Teslim edilecek kişi</span>
+        <span class="review__value">${buyerInfo.firstName} ${buyerInfo.lastName}</span>
+      </div>
+      <div class="review__row">
+        <span class="review__label">İletişim</span>
+        <span class="review__value">${buyerInfo.email} · ${buyerInfo.phone}</span>
+      </div>
+      <div class="review__row">
+        <span class="review__label">Adres</span>
+        <span class="review__value">${buyerInfo.address}, ${buyerInfo.district} / ${buyerInfo.city} ${buyerInfo.postcode}</span>
+      </div>
+      ${
+        buyerInfo.note
+          ? `<div class="review__row"><span class="review__label">Not</span><span class="review__value">${buyerInfo.note}</span></div>`
+          : ""
+      }`;
+  }
+
+  $("#toDelivery").addEventListener("click", () => goStep(2));
+
+  $$("[data-back]", checkoutSection).forEach((btn) => {
+    btn.addEventListener("click", () => goStep(Number(btn.dataset.back)));
+  });
+
+  checkoutSteps.addEventListener("click", (e) => {
+    const li = e.target.closest(".step");
+    if (!li) return;
+    const target = Number(li.dataset.step);
+    if (target < step) goStep(target);
+  });
+
+  checkoutItems.addEventListener("click", (e) => {
+    const inc = e.target.closest("[data-inc]")?.dataset.inc;
+    const dec = e.target.closest("[data-dec]")?.dataset.dec;
+    const rem = e.target.closest("[data-remove]")?.dataset.remove;
+    if (inc) {
+      const item = Cart.items.find((i) => i.key === inc);
+      if (item) Cart.setQty(inc, item.qty + 1);
+    }
+    if (dec) {
+      const item = Cart.items.find((i) => i.key === dec);
+      if (item) Cart.setQty(dec, item.qty - 1);
+    }
+    if (rem) Cart.remove(rem);
+    if (inc || dec || rem) updateCartUI();
+  });
+
+  /* ---- Teslimat formu doğrulama ---- */
+  const VALIDATORS = {
+    firstName: (v) => (v.length >= 2 ? "" : "Adınızı yazın."),
+    lastName: (v) => (v.length >= 2 ? "" : "Soyadınızı yazın."),
+    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? "" : "Geçerli bir e-posta yazın."),
+    phone: (v) => (v.replace(/\D/g, "").length >= 10 ? "" : "10 haneli telefon numarası yazın."),
+    city: (v) => (v.length >= 2 ? "" : "İl yazın."),
+    district: (v) => (v.length >= 2 ? "" : "İlçe yazın."),
+    postcode: (v) => (/^\d{5}$/.test(v) ? "" : "5 haneli posta kodu yazın."),
+    address: (v) => (v.length >= 10 ? "" : "Adresi daha ayrıntılı yazın.")
+  };
+
+  function validateField(input) {
+    const check = VALIDATORS[input.name];
+    if (!check) return true;
+    const message = check(input.value.trim());
+    const field = input.closest(".field");
+    field.classList.toggle("has-error", Boolean(message));
+    const errorEl = field.querySelector(".field__error");
+    if (errorEl) errorEl.textContent = message;
+    return !message;
+  }
+
+  deliveryForm.addEventListener("input", (e) => {
+    if (e.target.closest(".field")?.classList.contains("has-error")) validateField(e.target);
+  });
+  deliveryForm.addEventListener("blur", (e) => {
+    if (e.target.name in VALIDATORS) validateField(e.target);
+  }, true);
+
+  deliveryForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const summary = Cart.summary();
-    if (!summary.items.length) {
-      toast(IYZICO_CONFIG.emptyCartMessage);
+    const inputs = $$("input, textarea", deliveryForm).filter((i) => i.name in VALIDATORS);
+    const allValid = inputs.map(validateField).every(Boolean);
+    if (!allValid) {
+      $(".field.has-error input, .field.has-error textarea", deliveryForm)?.focus();
+      toast("Eksik veya hatalı alanları düzeltin.");
       return;
     }
+    const fd = new FormData(deliveryForm);
+    buyerInfo = {};
+    fd.forEach((value, key) => {
+      buyerInfo[key] = String(value).trim();
+    });
+    goStep(3);
+  });
 
-    const fd = new FormData(checkoutForm);
-    const buyer = {
-      name: String(fd.get("name") || "").trim(),
-      email: String(fd.get("email") || "").trim(),
-      phone: String(fd.get("phone") || "").trim(),
-      city: String(fd.get("city") || "").trim(),
-      address: String(fd.get("address") || "").trim()
-    };
+  /* ---- Shopier ödemesi (site içinde açılır) ---- */
+  function openPayModal(open) {
+    payModal.classList.toggle("is-open", open);
+    payModal.setAttribute("aria-hidden", String(!open));
+    document.body.style.overflow = open ? "hidden" : "";
+    if (!open) {
+      payFrame.removeAttribute("src");
+      payFrame.removeAttribute("srcdoc");
+      payLoading.hidden = false;
+    }
+  }
 
-    payBtn.disabled = true;
-    payBtn.textContent = "İşleniyor…";
-
-    try {
-      const result = await processPayment(buyer, summary);
-      if (result.ok || result.status === "success") {
-        toast(result.message || "Ödeme başlatıldı.");
-        if (result.demo) {
-          alert(
-            `Demo sipariş alındı!\n\nÖdeme no: ${result.paymentId}\nTutar: ${formatTRY(summary.total)}\n\n${
-              summary.discountActive ? summary.discountLabel + "\n" : ""
-            }Teşekkürler, ${buyer.name}.`
-          );
-          Cart.clear();
-          updateCartUI();
-          checkoutForm.reset();
-        } else if (result.checkoutFormContent) {
-          /* iyzico Checkout Form HTML dönerse sayfaya göm */
-          const box = document.createElement("div");
-          box.innerHTML = result.checkoutFormContent;
-          document.body.appendChild(box);
-          box.querySelector("script") && document.body.appendChild(box.querySelector("script"));
-        }
-      } else {
-        toast(result.message || "Ödeme başarısız.");
-      }
-    } catch (err) {
-      console.error(err);
-      toast(err.message || "Bağlantı hatası. Backend / iyzico ayarlarını kontrol edin.");
-    } finally {
-      payBtn.disabled = Cart.count() === 0;
-      payBtn.textContent = "iyzico ile Güvenli Öde";
+  payFrame.addEventListener("load", () => {
+    if (payFrame.getAttribute("src") || payModal.classList.contains("is-open")) {
+      payLoading.hidden = true;
     }
   });
 
-  /* ---- URL ?odeme=basarili ---- */
+  $("#payModalClose").addEventListener("click", () => openPayModal(false));
+  payModal.addEventListener("click", (e) => {
+    if (e.target === payModal) openPayModal(false);
+  });
+
+  function startPayment() {
+    const summary = Cart.summary();
+    if (!summary.items.length) {
+      toast("Önce sepete ürün ekleyin.");
+      return;
+    }
+    if (!buyerInfo) {
+      goStep(2);
+      return;
+    }
+
+    const order = buildShopierOrder(buyerInfo, summary);
+
+    if (!shopierReady()) {
+      openPayModal(true);
+      payLoading.hidden = true;
+      payFrame.removeAttribute("src");
+      payFrame.srcdoc = `<!doctype html><html lang="tr"><head><meta charset="utf-8" />
+        <style>
+          body{margin:0;font-family:system-ui,sans-serif;display:grid;place-items:center;height:100%;background:#faf6f1;color:#2c1f18;text-align:center;padding:28px}
+          h2{font-size:20px;margin:0 0 10px}
+          p{margin:0 0 8px;font-size:14px;line-height:1.6;color:#6b574a;max-width:34em}
+          code{background:#efe7de;padding:2px 5px;font-size:13px}
+          strong{font-size:19px}
+        </style></head><body><div>
+        <h2>Demo mod — gerçek ödeme alınmıyor</h2>
+        <p>Sipariş numarası <code>${order.orderId}</code> · Tutar <strong>${formatTRY(summary.total)}</strong></p>
+        <p>Shopier hesabınızı bağlamak için <code>js/shopier-config.js</code> içindeki
+        <code>endpoint</code> alanına aracı servisinizin adresini yazın.</p>
+        </div></body></html>`;
+      return;
+    }
+
+    /* Form POST ile açıyoruz: aracı servis, imzalı Shopier formunu
+       iframe içinde otomatik gönderiyor (fetch ile bu mümkün değil). */
+    openPayModal(true);
+    payFrame.removeAttribute("srcdoc");
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = SHOPIER_CONFIG.endpoint;
+    form.target = "payFrame";
+    form.style.display = "none";
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "order";
+    input.value = JSON.stringify(order);
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  }
+
+  payBtn.addEventListener("click", startPayment);
+
+  /* Ödeme sonucu, aracı servisten pencere içinden bildirilir */
+  window.addEventListener("message", (e) => {
+    const data = e.data;
+    if (!data || data.source !== "shopier") return;
+    if (data.status === "success") {
+      openPayModal(false);
+      Cart.clear();
+      buyerInfo = null;
+      deliveryForm.reset();
+      updateCartUI();
+      goStep(1);
+      toast("Ödemen alındı, siparişin hazırlanıyor. Teşekkürler!");
+    } else {
+      openPayModal(false);
+      toast("Ödeme tamamlanmadı. Dilersen tekrar deneyebilirsin.");
+    }
+  });
+
+  if (payNote) {
+    payNote.textContent = shopierReady()
+      ? "Ödeme ekranı Shopier tarafından sağlanır ve bu sayfadan ayrılmadan açılır."
+      : "Şu anda demo modda: gerçek ödeme alınmıyor. Shopier bağlantısı için js/shopier-config.js dosyasındaki endpoint alanını doldurun.";
+  }
+
+  /* ---- Ödeme dönüşü (yeni sekmede tamamlanırsa) ---- */
   if (new URLSearchParams(location.search).get("odeme") === "basarili") {
-    toast("Ödemeniz alındı. Teşekkürler!");
+    toast("Ödemen alındı. Teşekkürler!");
     Cart.clear();
   }
 

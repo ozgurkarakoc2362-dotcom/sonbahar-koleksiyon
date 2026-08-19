@@ -122,8 +122,21 @@ module.exports = async function handler(req, res) {
   }
 
   const buyer = order.buyer || {};
-  const required = ["firstName", "lastName", "email", "phone", "city", "district", "postcode", "address"];
-  const missing = required.filter((key) => !String(buyer[key] || "").trim());
+
+  /* Sitede tek alanda "Ad Soyad" isteniyor; Shopier ad ve soyadı ayrı bekliyor */
+  const nameParts = String(buyer.fullName || `${buyer.firstName || ""} ${buyer.lastName || ""}`)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const firstName = nameParts.slice(0, -1).join(" ") || nameParts[0] || "";
+  const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "-";
+
+  const missing = [];
+  if (!firstName) missing.push("ad soyad");
+  if (!String(buyer.email || "").trim()) missing.push("e-posta");
+  if (!String(buyer.phone || "").trim()) missing.push("telefon");
+  if (!String(buyer.city || "").trim()) missing.push("il");
+  if (!String(buyer.address || "").trim()) missing.push("adres");
   if (missing.length) {
     res.statusCode = 400;
     res.end(page("Teslimat bilgileri eksik", "Şu alanlar boş: " + missing.join(", ")));
@@ -133,7 +146,9 @@ module.exports = async function handler(req, res) {
   const orderId = String(order.orderId || "AN-" + Date.now()).slice(0, 40);
   const total = priced.total.toFixed(2);
   const randomNr = String(Math.floor(100000 + Math.random() * 900000));
-  const address = `${buyer.address}, ${buyer.district}`.slice(0, 240);
+  const address = [buyer.address, buyer.district].filter(Boolean).join(", ").slice(0, 240);
+  /* Shopier posta kodu alanını istiyor; müşteriye sormuyoruz, adres metni esas */
+  const postcode = String(buyer.postcode || "").trim() || "34000";
   /* Shopier sonucu bu servise geri gönderir (Vercel adresi) */
   const callbackUrl =
     process.env.SHOPIER_CALLBACK_URL ||
@@ -148,8 +163,8 @@ module.exports = async function handler(req, res) {
     platform_order_id: orderId,
     product_name: priced.productName || "Atelier Nord siparişi",
     product_type: 0,
-    buyer_name: String(buyer.firstName).slice(0, 60),
-    buyer_surname: String(buyer.lastName).slice(0, 60),
+    buyer_name: firstName.slice(0, 60),
+    buyer_surname: lastName.slice(0, 60),
     buyer_email: String(buyer.email).slice(0, 80),
     buyer_account_age: 0,
     buyer_id_nr: orderId,
@@ -157,11 +172,11 @@ module.exports = async function handler(req, res) {
     billing_address: address,
     billing_city: String(buyer.city).slice(0, 60),
     billing_country: "Turkey",
-    billing_postcode: String(buyer.postcode).slice(0, 10),
+    billing_postcode: postcode.slice(0, 10),
     shipping_address: address,
     shipping_city: String(buyer.city).slice(0, 60),
     shipping_country: "Turkey",
-    shipping_postcode: String(buyer.postcode).slice(0, 10),
+    shipping_postcode: postcode.slice(0, 10),
     total_order_value: total,
     currency: CURRENCY_TRY,
     platform: 0,

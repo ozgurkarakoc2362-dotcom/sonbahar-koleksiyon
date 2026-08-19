@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=12" />
+  <link rel="stylesheet" href="css/styles.css?v=13" />
   <script>
     // Telefon tarayicilari sekmeyi eski adres/kaydirma ile geri yukluyor;
     // site her acilista hero bolumunden baslasin.
@@ -485,7 +485,19 @@
     <div class="about__visual" aria-hidden="true"></div>
   </section>
 
-  <!-- Ödeme / Checkout -->
+  <!-- Ödeme / Checkout: aynı sekmede tam sayfa görünüm -->
+  <div class="checkout-view" id="checkoutView" aria-hidden="true">
+  <div class="checkout-view__bar">
+    <span class="checkout-view__brand">
+      <span class="brand__mark">AN</span>
+      <span>Atelier Nord</span>
+    </span>
+    <span class="checkout-view__secure">Güvenli ödeme</span>
+    <button type="button" class="checkout-view__close" id="checkoutClose">
+      Alışverişe dön
+    </button>
+  </div>
+
   <section class="checkout" id="odeme">
     <div class="checkout__head">
       <p class="eyebrow">Güvenli ödeme</p>
@@ -504,7 +516,7 @@
           <h3 class="pane__title">Sepetindeki ürünler</h3>
           <div class="pane__items" id="checkoutItems"></div>
           <div class="pane__actions">
-            <a class="btn btn--ghost" href="#urunler">Alışverişe devam et</a>
+            <button type="button" class="btn btn--ghost" id="keepShopping">Alışverişe devam et</button>
             <button type="button" class="btn btn--primary" id="toDelivery">Teslimat bilgilerine geç</button>
           </div>
         </div>
@@ -512,15 +524,16 @@
         <!-- Adım 2: Teslimat -->
         <form class="pane" data-pane="2" id="deliveryForm" novalidate>
           <h3 class="pane__title">Teslimat bilgileri</h3>
+          <p class="pane__hint">Kargonun ulaşması için gereken en az bilgiyi istiyoruz.</p>
           <div class="field-grid">
-            <label class="field">
-              <span class="field__label">Ad</span>
-              <input type="text" name="firstName" autocomplete="given-name" placeholder="Ozgur" required />
+            <label class="field field--full">
+              <span class="field__label">Ad Soyad</span>
+              <input type="text" name="fullName" autocomplete="name" placeholder="Adınız ve soyadınız" required />
               <span class="field__error"></span>
             </label>
             <label class="field">
-              <span class="field__label">Soyad</span>
-              <input type="text" name="lastName" autocomplete="family-name" placeholder="Karakoç" required />
+              <span class="field__label">Telefon</span>
+              <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="05xx xxx xx xx" required />
               <span class="field__error"></span>
             </label>
             <label class="field">
@@ -529,33 +542,14 @@
               <span class="field__error"></span>
             </label>
             <label class="field">
-              <span class="field__label">Telefon</span>
-              <input type="tel" name="phone" autocomplete="tel" placeholder="05xx xxx xx xx" required />
-              <span class="field__error"></span>
-            </label>
-            <label class="field">
               <span class="field__label">İl</span>
               <input type="text" name="city" autocomplete="address-level1" placeholder="İstanbul" required />
               <span class="field__error"></span>
             </label>
-            <label class="field">
-              <span class="field__label">İlçe</span>
-              <input type="text" name="district" autocomplete="address-level2" placeholder="Kadıköy" required />
-              <span class="field__error"></span>
-            </label>
-            <label class="field">
-              <span class="field__label">Posta kodu</span>
-              <input type="text" name="postcode" autocomplete="postal-code" inputmode="numeric" placeholder="34710" required />
-              <span class="field__error"></span>
-            </label>
             <label class="field field--full">
               <span class="field__label">Adres</span>
-              <textarea name="address" rows="3" autocomplete="street-address" placeholder="Mahalle, sokak, bina ve daire no" required></textarea>
+              <textarea name="address" rows="3" autocomplete="street-address" placeholder="Mahalle, sokak, bina ve daire no, ilçe" required></textarea>
               <span class="field__error"></span>
-            </label>
-            <label class="field field--full">
-              <span class="field__label">Sipariş notu <em>(isteğe bağlı)</em></span>
-              <input type="text" name="note" placeholder="Forma sırt ismi, kapı kodu vb." />
             </label>
           </div>
           <div class="pane__actions">
@@ -595,6 +589,7 @@
       <aside class="order-summary" id="orderSummary" aria-label="Sipariş özeti"></aside>
     </div>
   </section>
+  </div>
 
   <footer class="site-footer">
     <div class="footer__brand">
@@ -649,9 +644,9 @@
     </div>
   </div>
 
-  <script src="js/products.js?v=11"></script>
-  <script src="js/shopier-config.js?v=11"></script>
-  <script src="js/cart.js?v=11"></script>
-  <script src="js/app.js?v=11"></script>
+  <script src="js/products.js?v=13"></script>
+  <script src="js/shopier-config.js?v=13"></script>
+  <script src="js/cart.js?v=13"></script>
+  <script src="js/app.js?v=13"></script>
 </body>
 </html>

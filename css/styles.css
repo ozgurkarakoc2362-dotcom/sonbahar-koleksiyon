@@ -1208,14 +1208,15 @@ code {
   left: 0;
   right: 0;
   z-index: 99;
-  background: #1d1714;
-  color: #f7f3ef;
+  background: var(--blue-500);
+  color: #fff;
   text-align: center;
-  font-size: 0.72rem;
-  font-weight: 400;
-  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.6rem 1rem;
+  box-shadow: 0 6px 18px rgba(26, 47, 74, 0.22);
 }
 
 body.has-prize-banner .hero {
